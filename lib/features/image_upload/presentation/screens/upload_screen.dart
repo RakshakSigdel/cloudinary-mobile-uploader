@@ -1,10 +1,11 @@
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/material.dart';
 
-class UploadScreen extends ConsumerWidget{
+class UploadScreen extends StatelessWidget{
+  const UploadScreen({super.key});
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // TODO: implement build
-    throw UnimplementedError();
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(child: Text('Upload Screen - To be Implemented In the Future'),)
+    );
   }
 }
