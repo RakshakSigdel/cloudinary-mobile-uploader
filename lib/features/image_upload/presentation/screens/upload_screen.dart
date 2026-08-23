@@ -4,6 +4,7 @@ import 'package:cloudinary_mobile_uploader/features/image_upload/presentation/wi
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../domain/upload_options.dart';
 import '../providers/image_picker_provider.dart';
 import '../providers/upload_queue_provider.dart';
@@ -19,13 +20,52 @@ class UploadScreen extends ConsumerStatefulWidget {
 class _UploadScreenState extends ConsumerState<UploadScreen> {
   UploadOptions _currentOptions = const UploadOptions();
 
-  Future<void> _pickAndEnqueue() async {
+  Future<void> _pickFromGallery() async {
     final picker = ref.read(imagePickerProvider);
     final picked = await picker.pickMultiImage();
     if (picked.isEmpty) return;
 
-    final files = picked.map((x) => File(x.path)).toList();
+    _enqueue(picked.map((x) => File(x.path)).toList());
+  }
+
+  Future<void> _pickFromCamera() async {
+    final picker = ref.read(imagePickerProvider);
+    final picked = await picker.pickImage(source: ImageSource.camera);
+    if (picked == null) return;
+
+    _enqueue([File(picked.path)]);
+  }
+
+  void _enqueue(List<File> files) {
     ref.read(uploadQueueProvider.notifier).enqueue(files, _currentOptions);
+  }
+
+  Future<void> _showSourcePicker() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      builder: (sheetContext) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_camera_outlined),
+              title: const Text('Take photo'),
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                _pickFromCamera();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: const Text('Choose from gallery'),
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                _pickFromGallery();
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -65,9 +105,9 @@ class _UploadScreenState extends ConsumerState<UploadScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: _pickAndEnqueue,
+        onPressed: _showSourcePicker,
         icon: const Icon(Icons.add_photo_alternate_outlined),
-        label: const Text('Select images'),
+        label: const Text('Add images'),
       ),
     );
   }
