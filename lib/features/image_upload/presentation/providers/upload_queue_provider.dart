@@ -58,7 +58,6 @@ class UploadQueueNotifier extends Notifier<List<UploadTask>>{
       return ;
     }
     final cancelToken = CancelToken();
-    //Uncomment later after cancel tokens is done
     _cancelTokens[task.id] = cancelToken;
 
     try{
@@ -93,3 +92,7 @@ class UploadQueueNotifier extends Notifier<List<UploadTask>>{
     ];
   }
 }
+
+final uploadQueueProvider = NotifierProvider<UploadQueueNotifier, List<UploadTask>>(
+  UploadQueueNotifier.new,
+);
