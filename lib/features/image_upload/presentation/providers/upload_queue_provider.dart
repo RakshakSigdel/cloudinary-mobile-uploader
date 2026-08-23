@@ -5,11 +5,18 @@ import 'package:cloudinary_mobile_uploader/core/error/app_exception.dart';
 import 'package:cloudinary_mobile_uploader/features/cloudinary_config/presentation/providers/cloudinary_config_provider.dart';
 import 'package:cloudinary_mobile_uploader/features/image_upload/domain/upload_options.dart';
 import 'package:cloudinary_mobile_uploader/features/image_upload/domain/upload_task.dart';
+import 'package:cloudinary_mobile_uploader/features/image_upload/data/upload_repository.dart';
+import './cloudinary_upload_service_provider.dart';
+import 'package:cloudinary_mobile_uploader/features/upload_history/presentation/providers/upload_history_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+final uploadRepositoryProvider = Provider(
+    (ref) => UploadRepository(ref.watch(cloudinaryUploadServiceProvider)),
+);
+
 class UploadQueueNotifier extends Notifier<List<UploadTask>>{
-  final Map<String,CancelToken> _cancelToken = {};
+  final Map<String,CancelToken> _cancelTokens = {};
   int _activeCount = 0;
 
   @override
@@ -28,7 +35,7 @@ class UploadQueueNotifier extends Notifier<List<UploadTask>>{
   }
   //Cancel
   void cancel(String taskId){
-    _cancelToken[taskId]?.cancel();
+    _cancelTokens[taskId]?.cancel();
   }
 
   void _processQueue(){
@@ -40,7 +47,6 @@ class UploadQueueNotifier extends Notifier<List<UploadTask>>{
     }
   }
 
-  //TBI
   Future<void> _startUpload(UploadTask task) async{
     _activeCount++;
     _updateTask(task.id, (t)=> t.copyWith(status: UploadStatus.uploading));
@@ -53,7 +59,7 @@ class UploadQueueNotifier extends Notifier<List<UploadTask>>{
     }
     final cancelToken = CancelToken();
     //Uncomment later after cancel tokens is done
-    //_cancelTokens[task.id] = cancelToken;
+    _cancelTokens[task.id] = cancelToken;
 
     try{
       final result = await ref.read(uploadRepositoryProvider).uploadImage(
@@ -64,15 +70,13 @@ class UploadQueueNotifier extends Notifier<List<UploadTask>>{
         onProgress : (progress) {_updateTask(task.id, (t) => t.copyWith(progress: progress));},
       );
       _updateTask(task.id, (t) => t.copyWith(status: UploadStatus.success, result: result));
-      //Uncomment after UploadHistory notifier is done
-      //ref.read(uploadHistoryProvider.notifier).add(result);
+      ref.read(uploadHistoryProvider.notifier).add(result);
     } on AppException catch(e){
       final wasCancelled = cancelToken.isCancelled;
       _updateTask(task.id, (t)=> t.copyWith(status: wasCancelled ? UploadStatus.cancelled : UploadStatus.failed, error: e),);
     }
     finally{
-      //Uncomment Later
-      //_cancelTokens.remove(task.id);
+      _cancelTokens.remove(task.id);
       _onTaskFinished();
     }
 

@@ -8,6 +8,7 @@ import 'package:cloudinary_mobile_uploader/features/image_upload/domain/upload_r
 enum UploadStatus { queued, uploading, success, failed, cancelled }
 
 class UploadTask {
+  static const _unset = Object();
   final String id;
   final File file;
   final UploadOptions options;
@@ -29,8 +30,8 @@ class UploadTask {
   UploadTask copyWith({
     UploadStatus? status,
     UploadProgress? progress,
-    UploadResult? result,
-    AppException? error,
+    Object? result = _unset ,
+    Object? error = _unset,
   }) {
     return UploadTask(
       id: id,
@@ -38,8 +39,8 @@ class UploadTask {
       options: options,
       status: status ?? this.status,
       progress: progress ?? this.progress,
-      result: result ?? this.result,
-      error: error ?? this.error,
+      result: identical(result,_unset) ? this.result : result as UploadResult?,
+      error: identical(error, _unset) ? this.error : error as AppException?,
     );
   }
 }
