@@ -2,7 +2,7 @@ import 'package:cloudinary_mobile_uploader/core/config/env.dart';
 import 'package:cloudinary_mobile_uploader/core/widgets/app_button.dart';
 import 'package:cloudinary_mobile_uploader/core/widgets/app_text_field.dart';
 import 'package:cloudinary_mobile_uploader/features/cloudinary_config/domain/cloudinary_config.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class ConfigForm extends StatefulWidget {
   final CloudinaryConfig? initialConfig;

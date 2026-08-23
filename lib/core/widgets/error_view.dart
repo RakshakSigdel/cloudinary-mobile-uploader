@@ -1,5 +1,4 @@
 import 'package:cloudinary_mobile_uploader/core/error/failure.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ErrorView extends StatelessWidget {

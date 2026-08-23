@@ -43,26 +43,41 @@ class _UploadScreenState extends ConsumerState<UploadScreen> {
   Future<void> _showSourcePicker() async {
     await showModalBottomSheet<void>(
       context: context,
+      showDragHandle: true,
       builder: (sheetContext) => SafeArea(
-        child: Wrap(
-          children: [
-            ListTile(
-              leading: const Icon(Icons.photo_camera_outlined),
-              title: const Text('Take photo'),
-              onTap: () {
-                Navigator.of(sheetContext).pop();
-                _pickFromCamera();
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library_outlined),
-              title: const Text('Choose from gallery'),
-              onTap: () {
-                Navigator.of(sheetContext).pop();
-                _pickFromGallery();
-              },
-            ),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Add images',
+                    style: Theme.of(sheetContext).textTheme.titleMedium,
+                  ),
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_camera_outlined),
+                title: const Text('Take photo'),
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  _pickFromCamera();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library_outlined),
+                title: const Text('Choose from gallery'),
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  _pickFromGallery();
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -77,27 +92,33 @@ class _UploadScreenState extends ConsumerState<UploadScreen> {
         title: const Text('Upload'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings),
+            tooltip: 'Cloudinary settings',
+            icon: const Icon(Icons.settings_outlined),
             onPressed: () => context.push('/config'),
           ),
           IconButton(
+            tooltip: 'Upload history',
             icon: const Icon(Icons.history),
             onPressed: () => context.push('/history'),
           ),
+          const SizedBox(width: 4),
         ],
       ),
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(12),
-            child: UploadOptionsForm(
-              onChanged: (options) => _currentOptions = options,
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+            child: Card(
+              child: UploadOptionsForm(
+                onChanged: (options) => _currentOptions = options,
+              ),
             ),
           ),
           Expanded(
             child: tasks.isEmpty
-                ? const Center(child: Text('No uploads yet'))
+                ? const _EmptyQueueState()
                 : ListView.builder(
+              padding: const EdgeInsets.only(top: 8, bottom: 96),
               itemCount: tasks.length,
               itemBuilder: (context, index) => ImagePreviewTile(task: tasks[index]),
             ),
@@ -108,6 +129,43 @@ class _UploadScreenState extends ConsumerState<UploadScreen> {
         onPressed: _showSourcePicker,
         icon: const Icon(Icons.add_photo_alternate_outlined),
         label: const Text('Add images'),
+      ),
+    );
+  }
+}
+
+class _EmptyQueueState extends StatelessWidget {
+  const _EmptyQueueState();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.cloud_upload_outlined,
+              size: 56,
+              color: colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No uploads yet',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Tap "Add images" to take a photo or pick from your gallery.',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

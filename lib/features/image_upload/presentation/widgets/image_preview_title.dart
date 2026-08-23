@@ -13,38 +13,54 @@ class ImagePreviewTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
       child: Padding(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(12),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
-              borderRadius: BorderRadius.circular(6),
-              child: Image.file(task.file, width: 48, height: 48, fit: BoxFit.cover),
+              borderRadius: BorderRadius.circular(10),
+              child: Image.file(task.file, width: 52, height: 52, fit: BoxFit.cover),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(p.basename(task.file.path), overflow: TextOverflow.ellipsis),
-                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          p.basename(task.file.path),
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      _StatusLabel(status: task.status),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
                   UploadProgressIndicator(task: task),
                   if (task.status == UploadStatus.failed && task.error != null)
                     Padding(
-                      padding: const EdgeInsets.only(top: 4),
+                      padding: const EdgeInsets.only(top: 6),
                       child: Text(
                         Failure.fromException(task.error!).message,
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.error,
+                          color: theme.colorScheme.error,
                           fontSize: 12,
                         ),
                       ),
                     ),
                   if (task.status == UploadStatus.success && task.result != null)
                     Padding(
-                      padding: const EdgeInsets.only(top: 4),
+                      padding: const EdgeInsets.only(top: 6),
                       child: Text(
                         task.result!.secureUrl,
                         style: const TextStyle(fontSize: 12, color: Colors.green),
@@ -54,9 +70,36 @@ class ImagePreviewTile extends ConsumerWidget {
                 ],
               ),
             ),
+            const SizedBox(width: 4),
             _TrailingAction(task: task, ref: ref),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _StatusLabel extends StatelessWidget {
+  final UploadStatus status;
+  const _StatusLabel({required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final (label, color) = switch (status) {
+      UploadStatus.queued => ('Queued', colorScheme.onSurfaceVariant),
+      UploadStatus.uploading => ('Uploading', colorScheme.primary),
+      UploadStatus.success => ('Done', Colors.green),
+      UploadStatus.failed => ('Failed', colorScheme.error),
+      UploadStatus.cancelled => ('Cancelled', colorScheme.onSurfaceVariant),
+    };
+
+    return Text(
+      label,
+      style: TextStyle(
+        fontSize: 11,
+        fontWeight: FontWeight.w600,
+        color: color,
       ),
     );
   }

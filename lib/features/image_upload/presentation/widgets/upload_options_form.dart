@@ -1,6 +1,5 @@
 import 'package:cloudinary_mobile_uploader/core/widgets/app_text_field.dart';
 import 'package:cloudinary_mobile_uploader/features/image_upload/domain/upload_options.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class UploadOptionsForm extends StatefulWidget {
@@ -46,8 +45,12 @@ class _UploadOptionsFormState extends State<UploadOptionsForm> {
   @override
   Widget build(BuildContext context) {
     return ExpansionTile(
-      title: const Text('Upload Options (optional)'),
-      childrenPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      shape: const Border(),
+      collapsedShape: const Border(),
+      leading: const Icon(Icons.tune),
+      title: const Text('Upload options'),
+      subtitle: const Text('Folder, tags, public ID (optional)'),
+      childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       children: [
         AppTextField(
           label: 'Folder',
