@@ -4,6 +4,7 @@ import 'package:path/path.dart' as p;
 import '../../../../core/error/failure.dart';
 import '../../domain/upload_task.dart';
 import '../providers/upload_queue_provider.dart';
+import 'edit_upload_options_sheet.dart';
 import 'upload_progress_indicator.dart';
 
 class ImagePreviewTile extends ConsumerWidget {
@@ -111,9 +112,14 @@ class _TrailingAction extends StatelessWidget {
 
   const _TrailingAction({required this.task, required this.ref});
 
+  bool get _isEditable =>
+      task.status == UploadStatus.queued ||
+      task.status == UploadStatus.failed ||
+      task.status == UploadStatus.cancelled;
+
   @override
   Widget build(BuildContext context) {
-    return switch (task.status) {
+    final statusAction = switch (task.status) {
       UploadStatus.uploading => IconButton(
         icon: const Icon(Icons.close),
         tooltip: 'Cancel',
@@ -124,8 +130,28 @@ class _TrailingAction extends StatelessWidget {
         tooltip: 'Retry',
         onPressed: () => ref.read(uploadQueueProvider.notifier).retry(task.id),
       ),
-      UploadStatus.success => const Icon(Icons.check_circle, color: Colors.green),
-      UploadStatus.queued => const Icon(Icons.schedule, color: Colors.grey),
+      UploadStatus.success => const Padding(
+        padding: EdgeInsets.all(12),
+        child: Icon(Icons.check_circle, color: Colors.green),
+      ),
+      UploadStatus.queued => const Padding(
+        padding: EdgeInsets.all(12),
+        child: Icon(Icons.schedule, color: Colors.grey),
+      ),
     };
+
+    if (!_isEditable) return statusAction;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.edit_outlined),
+          tooltip: 'Edit options',
+          onPressed: () => showEditUploadOptionsSheet(context, ref, task),
+        ),
+        statusAction,
+      ],
+    );
   }
 }

@@ -38,6 +38,10 @@ class UploadQueueNotifier extends Notifier<List<UploadTask>>{
     _cancelTokens[taskId]?.cancel();
   }
 
+  void updateOptions(String taskId, UploadOptions options){
+    _updateTask(taskId, (t) => t.copyWith(options: options));
+  }
+
   void _processQueue(){
     final queued = state.where((t) => t.status == UploadStatus.queued).toList();
 

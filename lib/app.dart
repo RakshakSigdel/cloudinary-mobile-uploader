@@ -16,6 +16,7 @@ class App extends ConsumerWidget {
       darkTheme: _buildTheme(Brightness.dark),
       themeMode: ThemeMode.system,
       routerConfig: router,
+      debugShowCheckedModeBanner: false,
     );
   }
 

@@ -28,6 +28,7 @@ class UploadTask {
   });
 
   UploadTask copyWith({
+    UploadOptions? options,
     UploadStatus? status,
     UploadProgress? progress,
     Object? result = _unset ,
@@ -36,7 +37,7 @@ class UploadTask {
     return UploadTask(
       id: id,
       file: file,
-      options: options,
+      options: options ?? this.options,
       status: status ?? this.status,
       progress: progress ?? this.progress,
       result: identical(result,_unset) ? this.result : result as UploadResult?,
