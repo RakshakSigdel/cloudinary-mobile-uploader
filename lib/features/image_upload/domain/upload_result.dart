@@ -37,7 +37,7 @@ class UploadResult {
     'secure_url' : secureUrl,
     'format' : format,
     'bytes' : bytes,
-    'created_at' : createdAt,
+    'created_at' : createdAt.toIso8601String(),
     'width' : width,
     'height' : height,
     'folder' : folder,

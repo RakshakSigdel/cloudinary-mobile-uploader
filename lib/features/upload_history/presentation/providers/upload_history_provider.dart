@@ -1,4 +1,3 @@
-import 'package:cloudinary_mobile_uploader/core/storage/local_storage_service.dart';
 import 'package:cloudinary_mobile_uploader/features/cloudinary_config/presentation/providers/cloudinary_config_provider.dart';
 import 'package:cloudinary_mobile_uploader/features/image_upload/domain/upload_result.dart';
 import 'package:cloudinary_mobile_uploader/features/upload_history/data/upload_history_repository.dart';
@@ -24,6 +23,13 @@ class UploadHistoryNotifier extends AsyncNotifier<List<UploadResult>> {
   Future<void> clearAll() async {
     await ref.read(uploadHistoryRepositoryProvider).clear();
     state = const AsyncData([]);
+  }
+
+  Future<void> remove(String publicId) async {
+    final current = state.valueOrNull ?? [];
+    final updated = current.where((r) => r.publicId != publicId).toList();
+    state = AsyncData(updated);
+    await ref.read(uploadHistoryRepositoryProvider).save(updated);
   }
 }
 
